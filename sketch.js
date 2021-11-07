@@ -1,75 +1,95 @@
-
-const Engine = Matter.Engine;
-const World = Matter.World;
-const Bodies = Matter.Bodies;
-const Body = Matter.Body;
-const Render = Matter.Render;
-const Constraint = Matter.Constraint;
-var bob1,bob2,bob3, bob4,bob5, roofObject
-var rope1,rope2,rope3, rope4,rope5;
-var world;
+var garden,rabbit,apple,orangeL,redL;
+var gardenImg,rabbitImg,carrotImg,orangeImg,redImg;
 
 
-function setup() {
-	createCanvas(800, 600);
-	rectMode(CENTER);
+function preload(){
+  gardenImg = loadImage("garden.png");
+  rabbitImg = loadImage("rabbit.png");
+  appleImg = loadImage("apple.png");
+  orangeImg = loadImage("orangeLeaf.png");
+  redImg = loadImage("redImage.png");
+}
 
 
-	engine = Engine.create();
-	world = engine.world;
-
-	roofObject=new roof(400,250,230,20);
-	bob1 = new bob(320,575,40)
-	bob2 = new bob(360,575,40)
-	bob3 = new bob(400,575,40)
-	bob4 = new bob(440,575,40)
-	bob5 = new bob(480,575,40)
-	
-	rope1=new rope(bob1.body,roofObject.body,-80)
-	rope2=new rope(bob2.body,roofObject.body,-40)
-	rope3=new rope(bob3.body,roofObject.body,0)
-	rope4=new rope(bob4.body,roofObject.body,40)
-	rope5=new rope(bob5.body,roofObject.body,80)
-	
-	Engine.run(engine);
-	
+function setup(){
   
+  createCanvas(400,400);
+// Moving background
+garden=createSprite(200,200);
+garden.addImage(gardenImg);
+
+
+//creating boy running
+rabbit = createSprite(160,340,20,20);
+rabbit.scale =0.09;
+rabbit.addImage(rabbitImg);
 }
 
 function draw() {
-  rectMode(CENTER);
-  background(230);
-  roofObject.display();
-
-  rope1.display();
-  rope2.display();
-  rope3.display();
-  rope4.display();
-  rope5.display();
-
-  bob1.display();
-  bob2.display();
+  background(0);
   
-  bob3.display();
-  bob4.display();
-  bob5.display();
+  // boy moving on Xaxis with mouse'
+  rabbit.x = World.mouseX;
+  
+  edges= createEdgeSprites();
+  rabbit.collide(edges);
+  
+   drawSprites();
+   
+  
+
+
+ var select_sprites = Math.round(random(1,3));
+
+  
+  
+
+
+   if (frameCount % 80 == 0) {
+     if (select_sprites == 1) {
+       createApples();
+     } else if (select_sprites == 2) {
+      createOrange();
+     }
+   }
+
+  
+
+  // if (frameCount % 80 = 0) {
+  //   if (select_sprites == 1) {
+  //     createApples();
+  //   } else if (select_sprites == 2) {
+  //     createOrange();
+  //   }else {
+  //     createRed();
+  //   }
+  // }
+
+
+
 }
 
-function drawLine (constraint){
-	bobBodyposition=constraint.bodyA.position;
-	roofBodyposition=constraint.bodyB.position;
-	roofBodyoffset=constraint.point8;
-	roofBodyX=roofBodyposition.x+ roofBodyoffset.x;
-	roofBodyY=roofBodyposition.y+ roofBodyoffset.y;
-	Line(bobBodyposition.x,bobBodyposition.y,roofBodyX,roofBodyY)
-	
+function createApples() {
+apple = createSprite(random(50, 350),40, 10, 10);
+apple.addImage(appleImg);
+apple.scale=0.07;
+apple.velocityY = 3;
+apple.lifetime = 150;
+  
 }
-//CHOOSE THE CORRECT OPTION TO APPLY A KEYPRESSED TO CHANGE THE POSITION OF BALL OBJECT TO THE LEFT WHEN UP ARROW KEY IS PRESSED
 
+function createOrange() {
+orangeL = createSprite(random(50, 350),40, 10, 10);
+orangeL.addImage(orangeImg);
+orangeL.scale=0.08;
+orangeL.velocityY = 3;
+orangeL.lifetime = 150;
+}
 
-
- function keyPressed() {
- 	if (keyCode === UP_ARROW) {
- 		Matter.Body.applyForce(bob1.body,bob1.body.position,{x:-50,y:-45});
- 	}
- }
+function createRed() {/*  */
+redL = createSprite(random(50, 350),40, 10, 10);
+redL.addImage(redImg);
+redL.scale=0.06;
+  redL.velocityY = 3;
+  redL.lifetime = 150;
+}
