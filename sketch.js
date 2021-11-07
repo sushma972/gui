@@ -1,198 +1,75 @@
-var path,mainCyclist;
-var player1,player2,player3;
-var pathImg,mainRacerImg1,mainRacerImg2;
 
-var oppPink1Img,oppPink2Img;
-var oppYellow1Img,oppYellow2Img;
-var oppRed1Img,oppRed2Img;
-var gameOverImg,cycleBell;
-
-var pinkCG, yellowCG,redCG; 
-
-var END =0;
-var PLAY =1;
-var gameState = PLAY;
-
-var distance=0;
-var gameOver, restart;
-
-function preload(){
-  pathImg = loadImage("Road.png");
-  mainRacerImg1 = loadAnimation("mainPlayer1.png","mainPlayer2.png");
-  mainRacerImg2= loadAnimation("mainPlayer3.png");
-  
-  oppPink1Img = loadAnimation("opponent1.png","opponent2.png");
-  oppPink2Img = loadAnimation("opponent3.png");
-  
-  oppYellow1Img = loadAnimation("opponent4.png","opponent5.png");
-  oppYellow2Img = loadAnimation("opponent6.png");
-  
-  oppRed1Img = loadAnimation("opponent7.png","opponent8.png");
-  oppRed2Img = loadAnimation("opponent9.png");
-  
-  cycleBell = loadSound("bell.mp3");
-  gameOverImg = loadImage("gameOver.png");
-}
-
-function setup(){
-  
-createCanvas(1200,300);
-// Moving background
-path=createSprite(100,150);
-path.addImage(pathImg);
-path.velocityX = -5;
-
-//creating boy running
-mainCyclist  = createSprite(70,150);
-mainCyclist.addAnimation("SahilRunning",mainRacerImg1);
-mainCyclist.scale=0.07;
-  
-//set collider for mainCyclist
+const Engine = Matter.Engine;
+const World = Matter.World;
+const Bodies = Matter.Bodies;
+const Body = Matter.Body;
+const Render = Matter.Render;
+const Constraint = Matter.Constraint;
+var bob1,bob2,bob3, bob4,bob5, roofObject
+var rope1,rope2,rope3, rope4,rope5;
+var world;
 
 
-mainCyclist.setCollider("rectangle",0,0,40,40);
+function setup() {
+	createCanvas(800, 600);
+	rectMode(CENTER);
 
 
-  
-gameOver = createSprite(650,150);
-gameOver.addImage(gameOverImg);
-gameOver.scale = 0.8;
-gameOver.visible = false;  
-  
-pinkCG = new Group();
-yellowCG = new Group();
-redCG = new Group();
+	engine = Engine.create();
+	world = engine.world;
+
+	roofObject=new roof(400,250,230,20);
+	bob1 = new bob(320,575,40)
+	bob2 = new bob(360,575,40)
+	bob3 = new bob(400,575,40)
+	bob4 = new bob(440,575,40)
+	bob5 = new bob(480,575,40)
+	
+	rope1=new rope(bob1.body,roofObject.body,-80)
+	rope2=new rope(bob2.body,roofObject.body,-40)
+	rope3=new rope(bob3.body,roofObject.body,0)
+	rope4=new rope(bob4.body,roofObject.body,40)
+	rope5=new rope(bob5.body,roofObject.body,80)
+	
+	Engine.run(engine);
+	
   
 }
 
 function draw() {
-  background(0);
-  
-  drawSprites();
-  textSize(20);
-  fill(255);
-  text("Distance: "+ distance,900,30);
-  
-  if(gameState===PLAY){
-    
-   distance = distance + Math.round(getFrameRate()/50);
-   path.velocityX = -(6 + 2*distance/150);
-  
-   mainCyclist.y = World.mouseY;
-  
-   edges= createEdgeSprites();
-   mainCyclist .collide(edges);
-  
-  //code to reset the background
-  if(path.x < 0 ){
-    path.x = width/2;
-  }
-  
-    //code to play cycle bell sound
-  if(keyDown("space")) {
-    cycleBell.play();
-  }
-  
-  //creating continous opponent players
-  var select_oppPlayer = Math.round(random(1,3));
-  
-  if (World.frameCount % 150 == 0) {
-    if (select_oppPlayer == 1) {
-      pinkCyclists();
-    } else if (select_oppPlayer == 2) {
-      yellowCyclists();
-    } else {
-      redCyclists();
-    }
-  }
-  
-   if(pinkCG.isTouching(mainCyclist)){
-     gameState = END;
-     player1.velocityY = 0;
-     player1.addAnimation("opponentPlayer1",oppPink2Img);
-    }
-    
-    if(yellowCG.isTouching(mainCyclist)){
-      gameState = END;
-      player2.velocityY = 0;
-      player2.addAnimation("opponentPlayer2",oppYellow2Img);
-    }
-    
-    if(redCG.isTouching(mainCyclist)){
-      gameState = END;
-      player3.velocityY = 0;
-      player3.addAnimation("opponentPlayer3",oppRed2Img);
-    }
-    
-}else if (gameState === END) {
-    gameOver.visible = true;
-  
-    textSize(20);
-    fill(255);
-    text("Press Up Arrow to Restart the game!", 500,200);
-  
-    path.velocityX = 0;
-    mainCyclist.velocityY = 0;
-    mainCyclist.addAnimation("SahilRunning",mainRacerImg2);
-  
-    pinkCG.setVelocityXEach(0);
-    pinkCG.setLifetimeEach(-1);
-  
-    yellowCG.setVelocityXEach(0);
-    yellowCG.setLifetimeEach(-1);
-  
-    redCG.setVelocityXEach(0);
-    redCG.setLifetimeEach(-1);
-    
-    
+  rectMode(CENTER);
+  background(230);
+  roofObject.display();
 
-     if(keyDown("UP_ARROW")) {
-       reset();
-     }
-}
+  rope1.display();
+  rope2.display();
+  rope3.display();
+  rope4.display();
+  rope5.display();
+
+  bob1.display();
+  bob2.display();
+  
+  bob3.display();
+  bob4.display();
+  bob5.display();
 }
 
-function pinkCyclists(){
-        player1 =createSprite(1100,Math.round(random(50, 250)));
-        player1.scale =0.06;
-        player1.velocityX = -(6 + 2*distance/150);
-        player1.addAnimation("opponentPlayer1",oppPink1Img);
-        player1.setLifetime=170;
-        pinkCG.add(player1);
+function drawLine (constraint){
+	bobBodyposition=constraint.bodyA.position;
+	roofBodyposition=constraint.bodyB.position;
+	roofBodyoffset=constraint.point8;
+	roofBodyX=roofBodyposition.x+ roofBodyoffset.x;
+	roofBodyY=roofBodyposition.y+ roofBodyoffset.y;
+	Line(bobBodyposition.x,bobBodyposition.y,roofBodyX,roofBodyY)
+	
 }
-
-function yellowCyclists(){
-        player2 =createSprite(1100,Math.round(random(50, 250)));
-        player2.scale =0.06;
-        player2.velocityX = -(6 + 2*distance/150);
-        player2.addAnimation("opponentPlayer2",oppYellow1Img);
-        player2.setLifetime=170;
-        yellowCG.add(player2);
-}
-
-function redCyclists(){
-        player3 =createSprite(1100,Math.round(random(50, 250)));
-        player3.scale =0.06;
-        player3.velocityX = -(6 + 2*distance/150);
-        player3.addAnimation("opponentPlayer3",oppRed1Img);
-        player3.setLifetime=170;
-        redCG.add(player3);
-}
+//CHOOSE THE CORRECT OPTION TO APPLY A KEYPRESSED TO CHANGE THE POSITION OF BALL OBJECT TO THE LEFT WHEN UP ARROW KEY IS PRESSED
 
 
 
-function reset(){
-  gameState = PLAY;
-  gameOver.visible = false;
-  mainCyclist.addAnimation("SahilRunning",mainRacerImg1);
-  
-  pinkCG.destroyEach();
-  yellowCG.destroyEach();
-  redCG.destroyEach();
-  
-  distance = 0;
+ function keyPressed() {
+ 	if (keyCode === UP_ARROW) {
+ 		Matter.Body.applyForce(bob1.body,bob1.body.position,{x:-50,y:-45});
+ 	}
  }
-
-
-
-
